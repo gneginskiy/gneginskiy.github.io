@@ -57,21 +57,68 @@
             downloadTheLinksInTextArea();
         };
 
+        function isPdf(urlForDownload) {
+            return urlForDownload.toLowerCase().endsWith(".pdf");
+        }
+
+        function getUnique(array) {
+            var seen = {};
+            return array.filter(function (item) {
+                return seen.hasOwnProperty(item) || item===null|| item==="" ? false : (seen[item] = true);
+            });
+        }
+
         async function downloadTheLinksInTextArea() {
             const waitSeconds = document.getElementById('waitSeconds').value;
             const chunkSize = document.getElementById('chunkSize').value;
-            var lines = document.getElementById('linksTextArea').value.split('\n');
+            var lines = getUnique(document.getElementById('linksTextArea').value.split('\n'));
+            var pdfCounter = 0;
             var counter = 0;
+            var renamingPropertiesData = [];
             for (urlForDownload of lines) {
-                if (isNotEmpty(urlForDownload)) {
-                    let fileName = urlForDownload.replace(/\s+/, '_').split('_');
-                    download_file(urlForDownload, fileName)
+                if (!isNotEmpty(urlForDownload)) continue;
+
+                let fileName = urlForDownload.replace(/\s+/, '_').split('_');
+                download_file(urlForDownload, fileName);
+                if (isPdf(urlForDownload)) {
+                    var pdfName = urlForDownload.split(/_(.+)/)[1];
+                    if (pdfCounter === 0) {
+                        renamingPropertiesData.push("\"download.pdf\"");
+                        renamingPropertiesData.push(pdfName);
+                    } else {
+                        renamingPropertiesData.push("\"download" + " (" + pdfCounter + ").pdf\"");
+                        renamingPropertiesData.push(pdfName);
+                    }
+                    pdfCounter++;
                 }
                 counter++;
                 if (counter % chunkSize === 0) {
                     await sleep(waitSeconds * 1000);
                 }
+
             }
+            if (renamingPropertiesData.length !== 0) {
+                var batchFileContent = "";
+                for (let i = 0; i < renamingPropertiesData.length; i++) {
+                    var isFromName = i % 2 === 0;
+                    if (isFromName) {
+                        batchFileContent += "ren " + renamingPropertiesData[i];
+                    } else {
+                        batchFileContent += " " + renamingPropertiesData[i] + "\n";
+                    }
+                }
+                saveFileFromString("rename.bat", batchFileContent);
+            }
+        }
+
+        function saveFileFromString(filename, text) {
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+            element.setAttribute('download', filename);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         }
 
         function download_file(fileURL, fileName) {
