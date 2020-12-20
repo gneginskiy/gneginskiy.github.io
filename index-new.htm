@@ -18,6 +18,7 @@
         font-family: monospace;
     }
 
+
     details > textarea {
         vertical-align: middle;
         resize: none;
@@ -40,12 +41,9 @@
 <p>place your links below:</p>
 <textarea id="linksTextArea" rows="900" cols="220">
 </textarea>
-<iframe id="my_iframe" style="display:none;"></iframe>
-
 </body>
 
 <head>
-
     <script>
         const sleep = (milliseconds) => {
             return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -54,6 +52,18 @@
         const isNotEmpty = (str) => {
             return (str || 0 < str.length);
         };
+
+        function download(url, filename) {
+            fetch(url).then(function (t) {
+                return t.blob().then((b) => {
+                        var a = document.createElement("a");
+                        a.href = URL.createObjectURL(b);
+                        a.setAttribute("download", filename);
+                        a.click();
+                    }
+                );
+            });
+        }
 
         document.getElementById('downloadButton').onclick = function () {
             downloadTheLinksInTextArea();
@@ -66,8 +76,14 @@
             var counter = 0;
             for (urlForDownload of lines) {
                 if (isNotEmpty(urlForDownload)) {
-                    document.getElementById('my_iframe').src = urlForDownload;
-                    // window.open(urlForDownload, '_blank');
+                    const proxyurl = "https://cors-anywhere.herokuapp.com/";
+                    const url = "https://gneginskiy.github.io"; // site that doesn’t send Access-Control-*
+                    fetch(proxyurl + urlForDownload) // https://cors-anywhere.herokuapp.com/https://example.com
+                        .then(response => response.text())
+                        .then(contents => console.log(contents))
+                        .catch(() => console.log("Can’t access " + url + " response. Blocked by browser?"))
+
+                    // download(urlForDownload, urlForDownload.replace(/\s+/, '_').split('_'))
                 }
                 counter++;
                 if (counter % chunkSize === 0) {
