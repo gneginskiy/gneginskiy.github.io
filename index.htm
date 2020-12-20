@@ -2,26 +2,40 @@
 <html>
 
 <style>
+    .buttonClass {
+        width: 200px;
+        height: 100px;
+        background-color: limegreen;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
     body {
         background-image: url('bg.png');
         background-repeat: repeat;
         font-size: 20px;
         font-family: monospace;
     }
+
+
+    details > textarea {
+        vertical-align: middle;
+        resize: none;
+        font-weight: bold;
+    }
 </style>
+
 <body>
-<input type="button" value="download"
-       style='width:200px;height:100px;background-color:limegreen;color:white;font-size: 20px;font-weight:bold'
-       id="downloadButton">
+<input type="button" class="buttonClass" value="download" id="downloadButton">
 <a href="index_old.htm" style="color: darkgray">Switch to the old version</a>
 <details>
     <br>
     <summary>additional settings</summary>
     <label for="chunkSize">Size of the single chunk is X links: </label>
-    <textarea id="chunkSize" rows="1" cols="3" style="vertical-align: middle;resize: none;font-weight:bold">10</textarea>
+    <textarea id="chunkSize" rows="1" cols="1">10</textarea>
     <br>
     <label for="waitSeconds">Wait for X seconds between downloading chunks:</label>
-    <textarea id="waitSeconds" rows="1" cols="2" style="vertical-align: middle;resize: none;font-weight:bold">5</textarea>
+    <textarea id="waitSeconds" rows="1" cols="1">5</textarea>
 </details>
 <p>place your links below:</p>
 <textarea id="linksTextArea" rows="900" cols="220">
@@ -57,7 +71,6 @@
                 }
             }
         }
-
     </script>
 </head>
 
