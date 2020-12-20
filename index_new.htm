@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+    .buttonClass {
+        width: 200px;
+        height: 100px;
+        background-color: limegreen;
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    body {
+        background-image: url('bg.png');
+        background-repeat: repeat;
+        font-size: 20px;
+        font-family: monospace;
+    }
+
+    details > textarea {
+        vertical-align: middle;
+        resize: none;
+        font-weight: bold;
+    }
+</style>
+
+<body>
+<input type="button" class="buttonClass" value="download" id="downloadButton">
+<a href="index_old.htm" style="color: darkgray">Switch to the old version</a>
+<details>
+    <br>
+    <summary>additional settings</summary>
+    <label for="chunkSize">Size of the single chunk is X links: </label>
+    <textarea id="chunkSize" rows="1" cols="1">10</textarea>
+    <br>
+    <label for="waitSeconds">Wait for X seconds between downloading chunks:</label>
+    <textarea id="waitSeconds" rows="1" cols="1">5</textarea>
+</details>
+<p>place your links below:</p>
+<textarea id="linksTextArea" rows="900" cols="220">
+</textarea>
+<iframe id="my_iframe" style="display:none;"></iframe>
+
+</body>
+
+<head>
+
+    <script>
+        const sleep = (milliseconds) => {
+            return new Promise(resolve => setTimeout(resolve, milliseconds))
+        };
+
+        const isNotEmpty = (str) => {
+            return (str || 0 < str.length);
+        };
+
+        document.getElementById('downloadButton').onclick = function () {
+            downloadTheLinksInTextArea();
+        };
+
+        async function downloadTheLinksInTextArea() {
+            const waitSeconds = document.getElementById('waitSeconds').value;
+            const chunkSize = document.getElementById('chunkSize').value;
+            var lines = document.getElementById('linksTextArea').value.split('\n');
+            var counter = 0;
+            for (urlForDownload of lines) {
+                if (isNotEmpty(urlForDownload)) {
+                    document.getElementById('my_iframe').src = urlForDownload;
+                    // window.open(urlForDownload, '_blank');
+                }
+                counter++;
+                if (counter % chunkSize === 0) {
+                    await sleep(waitSeconds * 1000);
+                }
+            }
+        }
+    </script>
+</head>
+
+</html>
