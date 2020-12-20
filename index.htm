@@ -1,27 +1,64 @@
 <!DOCTYPE html>
 <html>
 
-
-<input type="button" value="clickme" id="MyButton">
+<style>
+    body {
+        background-image: url('bg.png');
+        background-repeat: repeat;
+        font-size: 20px;
+        font-family: monospace;
+    }
+</style>
 <body>
-
-<p>
-<textarea id="w3review" name="w3review" rows="40" cols="50">
+<input type="button" value="download"
+       style='width:200px;height:100px;background-color:limegreen;color:white;font-size: 20px;font-weight:bold'
+       id="downloadButton">
+<a href="index_old.htm" style="color: darkgray">Switch to the old version</a>
+<details>
+    <br>
+    <summary>additional settings</summary>
+    <label for="chunkSize">Size of the single chunk is X links: </label>
+    <textarea id="chunkSize" rows="1" cols="3" style="vertical-align: middle;resize: none;font-weight:bold">10</textarea>
+    <br>
+    <label for="waitSeconds">Wait for X seconds between downloading chunks:</label>
+    <textarea id="waitSeconds" rows="1" cols="2" style="vertical-align: middle;resize: none;font-weight:bold">5</textarea>
+</details>
+<p>place your links below:</p>
+<textarea id="linksTextArea" rows="900" cols="220">
 </textarea>
 </body>
+
 <head>
     <script>
-        document.getElementById('MyButton').onclick = function () {
-            var lines = document.getElementById('w3review').value.split('\n');
-            for (var i = 0; i < lines.length; i++) {
-                var linkForDownload = lines[i];
-                var win = window.open(linkForDownload, '_blank');
-                win.focus();
-            }
-            // location.href = 'http://foo.exaple.com/bar/' + document.getElementById('meow').value + '.zip';
+        const sleep = (milliseconds) => {
+            return new Promise(resolve => setTimeout(resolve, milliseconds))
         };
+
+        const isNotEmpty = (str) => {
+            return (str || 0 < str.length);
+        };
+
+        document.getElementById('downloadButton').onclick = function () {
+            downloadTheLinksInTextArea();
+        };
+
+        async function downloadTheLinksInTextArea() {
+            const waitSeconds = document.getElementById('waitSeconds').value;
+            const chunkSize = document.getElementById('chunkSize').value;
+            var lines = document.getElementById('linksTextArea').value.split('\n');
+            var counter = 0;
+            for (urlForDownload of lines) {
+                if (isNotEmpty(urlForDownload)) {
+                    window.open(urlForDownload, '_blank');
+                }
+                counter++;
+                if (counter % chunkSize === 0) {
+                    await sleep(waitSeconds * 1000);
+                }
+            }
+        }
+
     </script>
 </head>
-
 
 </html>
