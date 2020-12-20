@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<input type="button" value="clickme" id="MyButton">
+<input type="button" value="clickme" id="downloadButton">
 <body>
 <p>
     <textarea id="textArea" name="textArea" rows="40" cols="50">
@@ -9,14 +9,23 @@
 </body>
 <head>
     <script>
-        document.getElementById('MyButton').onclick = function () {
-            var lines = document.getElementById('textArea').value.split('\n');
-            for (urlForDownload in lines) {
-                window.open(urlForDownload, '_blank');
-            }
+        const isNotEmpty = (str) => {
+            return (str || 0 < str.length);
         };
+
+        document.getElementById('downloadButton').onclick = function () {
+            downloadTheLinksInTextArea();
+        };
+
+        async function downloadTheLinksInTextArea() {
+            var lines = document.getElementById('textArea').value.split('\n');
+            for (urlForDownload of lines) {
+                if (isNotEmpty(urlForDownload)) {
+                    window.open(urlForDownload, '_blank');
+                }
+            }
+        }
     </script>
 </head>
-
 
 </html>
