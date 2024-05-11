@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text Encoder/Decoder</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box; /* Include padding and border in the element's width */
+        }
+    </style>
+
+    <script>
+        const charToStr = new Map();
+        const strToChar = new Map();
+
+        function initializeMaps() {
+            let c = 'а'.charCodeAt(0);
+            for (let i = 0; i <= 32 && c <= 'я'.charCodeAt(0); i++, c++) {
+                let bs = i.toString(2);
+                while (bs.length < 6) bs = "0" + bs;
+                const str = bs.replace(/0/g, '.').replace(/1/g, '!');
+                charToStr.set(String.fromCharCode(c), str);
+                strToChar.set(str, String.fromCharCode(c));
+            }
+        }
+
+        function encode(s) {
+            let res = '';
+            for (let c of s) {
+                c = c.toLowerCase();
+                res += charToStr.get(c) || c;
+            }
+            return res;
+        }
+
+        function decode(s) {
+            let res = '';
+            let sb = '';
+            let cnt = 0;
+            for (let i = 0; i < s.length; i++) {
+                const c = s[i];
+                if (c === '!' || c === '.') {
+                    sb += c;
+                    cnt++;
+                } else {
+                    if (cnt > 0) {
+                        res += strToChar.get(sb) || '?';
+                        sb = '';
+                        cnt = 0;
+                    }
+                    res += c;
+                }
+                if (cnt === 6) {
+                    res += strToChar.get(sb) || '?';
+                    sb = '';
+                    cnt = 0;
+                }
+            }
+            if (cnt > 0) {  // Check for any remaining encoded characters
+                res += strToChar.get(sb) || '?';
+            }
+            return res;
+        }
+
+        function updateEncoded() {
+            const plaintext = document.getElementById('plaintext').value;
+            document.getElementById('encoded').value = encode(plaintext);
+        }
+
+        function updateDecoded() {
+            const encodedtext = document.getElementById('encoded').value;
+            document.getElementById('plaintext').value = decode(encodedtext);
+        }
+
+        window.onload = initializeMaps;
+    </script>
+</head>
+<body>
+<h1>Text Encoder and Decoder</h1>
+<label for="plaintext">Plain Text:</label>
+<input type="text" width="100px" id="plaintext" oninput="updateEncoded()">
+<br><br>
+<label for="encoded">Encoded:</label>
+<input type="text" id="encoded" oninput="updateDecoded()">
+</body>
+</html>
